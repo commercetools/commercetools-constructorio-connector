@@ -8,9 +8,8 @@ env:
 replicaCount: 1
 
 image:
-  # repository: gcr.io/ct-sales-207211/template-ms
   repository: [[docker_image_url]]
-  tag: latest
+  tag: [[docker_image_tag]]
   pullPolicy: Always
 
 service:

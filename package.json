@@ -19,10 +19,10 @@
     "test:watch": "cross-env NODE_ENV=development jest --watch",
     "ci-lint": "yarn run lint",
     "ci-test": "yarn run test",
-    "ci-package": "docker build --tag [[docker_image_url]]:latest .",
-    "ci-package-clean": "docker build --no-cache --tag [[docker_image_url]]:latest .",
-    "ci-push": "docker push [[docker_image_url]]:latest",
-    "ci-deploy": "helm upgrade ${npm_package_name} helm-chart --install --wait --force --namespace ${npm_package_name} --set image.tag=latest"
+    "ci-package": "docker build --tag [[docker_image_url]]:[[docker_image_tag]] .",
+    "ci-package-clean": "docker build --no-cache --tag [[docker_image_url]]:[[docker_image_tag]] .",
+    "ci-push": "kubectl create namespace [[service_name]] && docker push [[docker_image_url]]:[[docker_image_tag]]",
+    "ci-deploy": "helm upgrade ${npm_package_name} helm-chart --install --wait --force --namespace ${npm_package_name} --set image.tag=[[docker_image_tag]]"
   },
   "engines": {
     "node": ">= 12"
