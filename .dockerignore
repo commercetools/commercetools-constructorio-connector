@@ -1,0 +1,17 @@
+Dockerfile
+.DS_Store
+node_modules
+dist
+coverage
+.terraform
+*.tfstate*
+*.tfvars*
+docs
+helm-chart
+.env
+src/__tests__
+.prettierrc
+.prettierignore
+.eslintignore
+.eslintrc
+.babelrc

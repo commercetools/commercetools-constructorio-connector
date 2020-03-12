@@ -1,0 +1,83 @@
+openapi: 3.0.0
+info:
+  title: Offers API
+  description: This is the API documentation for the Offers API
+  version: x.y.z
+
+servers:
+  - url: http://api.domain.com/offers
+    description: Production environment
+  - url: http://api.staging.domain.com/offers
+    description: Stage environment
+  - url: http://api.dev.domain.com/offers
+    description: Development environment
+
+paths:
+  /:
+    get:
+      summary: Returns a list of offers.
+      description: Returns the full list of offers.
+      responses:
+        '200':    # status code
+          description: A JSON array of offers
+          content:
+            application/json:
+              schema:
+                type: array
+                offers:
+                  type: string
+        '500':    # status code
+          description: In case the server has an error
+          content:
+            application/json:
+              schema:
+                type: Object
+                offers:
+                  type: Object
+    post:
+      summary: Creates an Offer
+      description: Creates an Offer in the backend
+      responses:
+        '201':    # status code
+          description: The offer was successfully created
+          content:
+            application/json:
+              schema:
+                type: Object
+                offer:
+                  type: Object
+        '500':    # status code
+          description: In case the server has an error
+          content:
+            application/json:
+              schema:
+                type: Object
+                offers:
+                  type: Object
+  /{id}:
+    get:
+      summary: Returns an offer by ID
+      description: Returns the representation of an Offer
+      parameters:
+        - name: id
+          in: path
+          description: ID of the offer
+          required: true
+          type: string
+      responses:
+        '200':    # status code
+          description: A JSON object of an offer
+          content:
+            application/json:
+              schema:
+                type: Object
+                offer:
+                  type: Object
+        '404':    # status code
+          description: In case the offer does not exists
+          content:
+            application/json:
+              schema:
+                type: Object
+                offer:
+                  type: Object
