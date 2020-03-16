@@ -10,6 +10,9 @@ const _ = require('lodash')
 global.utils = require('./common/utils');
 global.config = require('./common/config');
 
+const subscriberManager = require('./common/managers/subscriptionManager')
+const extensionManager = require('./common/managers/extensionManager')
+
 // express app setup
 const app = express();
 const port = config.get('port') || 3001;
@@ -37,7 +40,17 @@ app.listen(port, async () => {
 
   let serviceDir = `${__dirname}/services`
   if (fs.existsSync(serviceDir)) {
-    _.each(_.map(utils.file.getSubdirectories(serviceDir), e => `./services/${e.name}`), dir => app.use(require(dir)))
+    _.each(_.map(utils.file.getSubdirectories(serviceDir), e => `./services/${e.name}`), dir => {
+      let service = require(dir)
+      _.each(service.extensions, extension => {
+        extensionManager.register(extension)
+        app.post(extension.path, extensionManager.handle)
+      })
+
+      _.each(service.subscribers, subscriber => {
+        subscriberManager.subscribe(subscriber)
+      })
+    })
   }
   else {
     logger.warn(`Couldn't find a services directory`)

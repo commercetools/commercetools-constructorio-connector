@@ -1,4 +1,4 @@
-import flowright from 'lodash.flowright';
+import { flowright } from 'lodash';
 import DnsPrefetchControl from './dns-prefetch-control';
 import Frameguard from './frameguard';
 import Hsts from './hsts';

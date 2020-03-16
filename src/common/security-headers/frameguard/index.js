@@ -1,6 +1,6 @@
 // Port from https://github.com/helmetjs/frameguard
 
-import isString from 'lodash.isstring';
+import { isString } from 'lodash';
 
 export default (options = {}) => fn => (req, res) => {
   const { domain, action } = options;
