@@ -1,0 +1,130 @@
+.icon {
+  position: relative;
+  top: 6px;
+}
+
+#projectDetail {
+  overflow: scroll;
+}
+
+#projectDetailServices .endpoint-url {
+  font-size: 0.8em;
+}
+
+ul .region, ul .module {
+  background-color: #2A4148;
+  color: #fff;
+  font-weight: bold;
+}
+ul .project:hover {
+  background-color: #F5A730;
+  color: #fff;
+  font-weight: bold;
+}
+ul .extensions .icon, ul .subscriptions .icon {
+  font-size: 1.4em;
+  color: #0D9DF8;
+  cursor: pointer;
+}
+
+#projectCreate .center {
+  text-align: center;
+  font-size: 0.9em;
+  padding: 10 0 10 0;
+}
+#projectCreate form {
+  padding-top: 10;
+}
+#projectCreate label {
+  font-size: 0.8em;
+  font-weight: bold;
+}
+#projectCreate .icon {
+  top: 10px;
+}
+#projectCreate .icon.icon-check {
+  color: #20AD92;
+}
+#projectCreate .error {
+  border-color: #f30000;
+  border-width: 1.5px;
+}
+#projectCreate .success {
+  border-color: #20AD92;
+  border-width: 1.5px;
+}
+
+#sharedServicesList .microservice-path {
+  font-family: Lucida Console, Lucida Sans Typewriter, monaco, Bitstream Vera Sans Mono, monospace;
+}
+#sharedServicesList .badge {
+  text-transform: uppercase;
+  color: #fff;
+  font-size: 0.7em;
+  width: 50%;
+  position: relative;
+  top: 4px;
+  left: 25%;
+}
+#sharedServicesList .badge-get {
+  background-color: #20AD92;
+}
+#sharedServicesList .badge-post {
+  background-color: #F5A730;
+}
+
+input[type=checkbox] {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
+
+.toggle-switch {
+  cursor: pointer;
+  width: 60px;
+  height: 30px;
+  background: grey;
+  display: block;
+  border-radius: 100px;
+  position: relative;
+  padding: 0;
+  text-align: center;
+}
+.toggle-switch .spinner-border {
+  height: 20px;
+  width: 20px;
+  position: relative;
+  top: 5px;
+  font-size: 0.75em;
+}
+.toggle-switch .spinner-border.hidden {
+  display: none;
+}
+
+.toggle-switch.inactive:after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 20px;
+  transition: 0.3s;
+}
+
+.toggle:checked + .toggle-switch {
+  background: #bada55;
+}
+
+.toggle:checked + .toggle-switch.inactive:after {
+  left: calc(100% - 5px);
+  transform: translateX(-100%);
+}
+
+.toggle + .toggle-switch.inprogress:after {
+  left: calc(50%);
+  transform: translateX(-50%);
+}
+
+/*# sourceMappingURL=scaffold.css.map */

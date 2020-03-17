@@ -1,15 +1,15 @@
 # Other environment variables may be specified here for consumption by deployment.yaml;
 # Values.env and Values.secret are both exposed within the container as environment variables
-name: [[service_name]]
+name: %%service_name%%
 
 env:
-  EXPRESS_PORT: [[port]]
+  EXPRESS_PORT: %%port%%
 
 replicaCount: 1
 
 image:
-  repository: [[docker_image_url]]
-  tag: [[docker_image_tag]]
+  repository: %%docker_image_url%%
+  tag: %%docker_image_tag%%
   pullPolicy: Always
 
 service:
@@ -23,10 +23,10 @@ ingress:
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
-    - host: [[host]]
+    - host: %%host%%
       paths:
-        - /[[service_name]]
+        - /%%service_name%%
   tls:
-    - secretName: [[service_name]]
+    - secretName: %%service_name%%
       hosts:
-      - [[host]]
+      - %%host%%

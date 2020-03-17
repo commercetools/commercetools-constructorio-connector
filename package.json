@@ -1,7 +1,7 @@
 {
-  "name": "[[service_name]]",
+  "name": "%%service_name%%",
   "version": "0.1.0",
-  "description": "[[service_description]]",
+  "description": "%%service_description%%",
   "watch": {
     "dev": "src"
   },
@@ -17,11 +17,11 @@
     "test:watch": "cross-env NODE_ENV=development jest --watch",
     "ci-lint": "yarn run lint",
     "ci-test": "yarn run test",
-    "ci-package": "docker build --tag [[docker_image_url]]:[[docker_image_tag]] .",
-    "ci-package-clean": "docker build --no-cache --tag [[docker_image_url]]:[[docker_image_tag]] .",
-    "ci-push-with-namespace-create": "kubectl create namespace ${npm_package_name} && docker push [[docker_image_url]]:[[docker_image_tag]]",
-    "ci-push": "docker push [[docker_image_url]]:[[docker_image_tag]]",
-    "ci-deploy": "helm upgrade ${npm_package_name} helm-chart --install --wait --force --namespace ${npm_package_name} --set image.tag=[[docker_image_tag]]",
+    "ci-package": "docker build --tag %%docker_image_url%%:%%docker_image_tag%% .",
+    "ci-package-clean": "docker build --no-cache --tag %%docker_image_url%%:%%docker_image_tag%% .",
+    "ci-push-with-namespace-create": "kubectl create namespace ${npm_package_name} && docker push %%docker_image_url%%:%%docker_image_tag%%",
+    "ci-push": "docker push %%docker_image_url%%:%%docker_image_tag%%",
+    "ci-deploy": "helm upgrade ${npm_package_name} helm-chart --install --wait --force --namespace ${npm_package_name} --set image.tag=%%docker_image_tag%%",
     "ci-undeploy": "helm uninstall ${npm_package_name} --namespace ${npm_package_name}"
   },
   "engines": {

@@ -1,0 +1,172 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Scaffold</title>
+
+        <!-- Google Sign-In -->
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+        <meta name="google-signin-client_id" content="80926492852-cdd3funbpll0kicn8uc3sr7s2rrj67p5.apps.googleusercontent.com">
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.js" integrity="sha256-kzv+r6dLqmz7iYuR2OdwUgl4X5RVsoENBzigdF5cxtU=" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+
+        <link href="./style/styles.css" rel="stylesheet">
+        <link href="./style/scaffold.css" rel="stylesheet">
+
+        <script src="./js/index.js"></script>
+        <script src="./js/levenshtein.js"></script>
+    </head>
+
+    <body>
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <a class="navbar-brand" href="#">Scaffold</a>
+
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+                    <form class="form-inline my-2 my-lg-0 ml-auto">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" id="name"></a>
+                                <div class="dropdown-menu">
+                                    <a href="#" onclick="signOut();">Sign out</a>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="g-signin2" id="toggleSignIn" data-onsuccess="onSignIn"></div>
+                        <!-- <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button> -->
+                    </form>
+                </div>
+            </nav>
+
+            <!-- Project Management -->
+            <div class="modal" tabindex="-1" role="dialog" id="projectDetail">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="projectTitle"></h5>
+                        </div>
+                        <div class="modal-body">
+                            <div id="projectDetailServices"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-close" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal" tabindex="-1" role="dialog" id="projectCreate">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="center">Paste the credentials block from MC here</div>
+
+                            <textarea rows="6" id="pastedCredentials" class="form-control"></textarea>
+
+                            <div class="center">or enter manually</div>
+
+                            <form>
+                                <!-- oauth url, api url, client id, client secret, scopes -->
+                                <div class="form-group row">
+                                    <div class="col-md-3">
+                                        <label for="clientId" class="col-form-label">Client ID</label>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control" id="field_client_id" value="">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-md-3">
+                                        <label for="clientSecret" class="col-form-label">Client Secret</label>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control" id="field_client_secret" value="">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-md-3">
+                                        <label for="oauthURL" class="col-form-label">OAuth URL</label>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control" id="field_oauth_url" value="">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-md-3">
+                                        <label for="apiURL" class="col-form-label">API URL</label>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control" id="field_api_url" value="">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-md-3">
+                                        <label for="scopes" class="col-form-label">Scopes</label>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control" id="field_scopes" value="">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-close" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-success" id="saveCredentialButton" onclick="saveCredential()">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="saveSpinner"></span>
+                                Save changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="projectManager">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-11">Projects</div>
+                                <div class="col-md-1">
+                                    <button type="button" class="close" onclick="showProjectCreate()" aria-label="Close">
+                                        <span aria-hidden="true">&plus;</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="projectsList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="sharedServices">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-12">Shared</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="sharedServicesList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Project Management -->
+        </div>
+    </body>
+</html>

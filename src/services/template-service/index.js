@@ -1,7 +1,27 @@
-const router = require('express').Router()
+module.exports = {
+    extensions: [
+        {
+            key: 'template-customer-update',
+            path: '/customer/update',
 
-router.get('/project', async (req, res) => {
-    res.status(200).json(req.ct && (await req.ct.project.get()));
-});
+            triggers: {
+                customer: {
+                    Update: async ({ data, ct }) => {
+                        return ct && (await ct.project.get())
+                    }
+                }
+            }
+        }
+    ],
+    microservices: [
+        {
+            key: 'template-microservice',
+            path: '/microservice',
+            method: 'post',
 
-module.exports = router
+            handle: async ({ data, ct }) => {
+                return ct && (await ct.project.get())
+            }
+        }
+    ]
+}
