@@ -10,7 +10,7 @@ let payloadGenerator = {
         })),
         destination: {
             type: "HTTP",
-            url: `${data.protocol}://${data.host}/api${hook.path}`,
+            url: `${data.protocol}://${data.host}${data.localPath}${hook.path}`,
             authentication: {
                 type: "AuthorizationHeader",
                 headerValue: data.project
@@ -49,15 +49,11 @@ let admin_microservices = [
         method: 'post',
         handle: async ({ data, ct }) => await CT.saveCredential(data.object)
     },
-    // {
-    //     key: 'pub-sub-message',
-    //     path: '/pubsub',
-    //     method: 'post',
-    //     handler: async (data, ct, router) => {
-    //         router.processPubSub(data.object)
-    //         return []
-    //     }
-    // }
+    {
+        key: 'admin-kubernetes-liveness-probe',
+        path: '/isready',
+        handle: () => 'Ready'
+    }
 ]
     
 _.each(serviceTypes, type => {

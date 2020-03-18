@@ -1,0 +1,7 @@
+{
+    "pubSub": {
+        "type": "GoogleCloudPubSub",
+        "projectId": "%%gcp_id%%",
+        "topic": "%%gcp_pubsub_topic%%"
+    }
+}

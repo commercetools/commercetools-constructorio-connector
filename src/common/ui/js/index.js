@@ -2,6 +2,9 @@ let projects = {}
 let endpoints = []
 let user = null
 
+let localPath = window.location.pathname.replace('/ui/', '')
+console.log(`localPath: ${localPath}`)
+
 let template = {
     client_id: '',
     client_secret: '',
@@ -57,7 +60,7 @@ let loadSharedServices = async () => {
     let html = ''
     if (user) {
         try {
-            endpoints = await $.ajax('/api')
+            endpoints = await $.ajax(`${localPath}/api`)
 
             let microservicesByService = _.groupBy(_.filter(endpoints, e => e.type === 'microservices'), 'service')
             html = _.map(Object.keys(microservicesByService), service => {
@@ -86,14 +89,14 @@ let refreshProjects = async () => {
     let html = ''
     if (user) {
         try {
-            projects = await $.ajax('/projects')
+            projects = await $.ajax(`${localPath}/projects`)
         
             let groupedProjects = _.groupBy(projects, 'region')
             _.each(Object.keys(groupedProjects), group => {
                 let regionProjects = groupedProjects[group]
                 html += `<ul>`
                 html += `<li class='list-group-item region'>${group}</li>`
-                _.each(regionProjects, project => {
+                _.each(_.sortBy(regionProjects, 'projectKey'), project => {
                     html += `<li class='project list-group-item' onclick='clickRow("${project.projectKey}")'>${project.projectKey}</li>`
                 })
                 html += `</ul>`
@@ -107,7 +110,7 @@ let refreshProjects = async () => {
 
 let clickRow = async projectKey => {
     let project = await $.ajax({
-        url: '/project',
+        url: `${localPath}/project`,
         headers: { 'Authorization': projectKey }
     })
 
@@ -121,7 +124,7 @@ let clickRow = async projectKey => {
         console.log(JSON.stringify(services))
 
         if (_.includes(Object.keys(project), 'subscriptions')) {
-            let service = _.first(_.filter(services, s => s.key === endpoint.key))
+            let service = _.ff(services, s => s.key === endpoint.key)
 
             console.log(`service ${JSON.stringify(service)}`)
             endpoint.active = _.includes(_.map(services, 'key'), endpoint.key)
@@ -181,7 +184,7 @@ let clickRow = async projectKey => {
             _.each(services, endpoint => {
                 endpoint.url = endpoint.url || ''
                 html += `
-                    <li class='list-group-item ${endpoint.type}')'>
+                    <li class='list-group-item ${endpoint.type}'>
                         <div class='row'>
                             <div class='col col-md-5'>${endpoint.key}</div>
                             <div class='col col-md-4'>${endpoint.type}</div>
@@ -299,7 +302,7 @@ let saveCredential = async () => {
         $('#saveSpinner').show()
         let response = await $.ajax({
             method: 'post',
-            url: '/projects',
+            url: `${localPath}/projects`,
             dataType: 'json',
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(project)
@@ -366,7 +369,7 @@ $(document).on('click', '.toggle-switch', async function () {
     let serviceActive = $(this).data('active')
     let projectKey = $(this).data('project-key')
 
-    let url = `/${serviceType}${serviceActive ? '?key=' + serviceKey : ''}`
+    let url = `${localPath}/${serviceType}${serviceActive ? '?key=' + serviceKey : ''}`
     let method = serviceActive ? 'delete' : 'post'
 
     let request = {
@@ -381,12 +384,13 @@ $(document).on('click', '.toggle-switch', async function () {
         project: projectKey,
         key: serviceKey,
         protocol: window.location.protocol.replace(':', ''),
-        host: window.location.host
+        host: window.location.host,
+        localPath
     })
 
     try {        
-        await $.ajax(request)
-        // clickRow(projectKey)
+        let response = await $.ajax(request)
+        $(this).closest('.list-group-item').find('.endpoint-url').text(!serviceActive ? (response.destination.url || response.destination.topic) : '')
 
         $(`#toggle-${serviceKey}`).prop('checked', !serviceActive)
         $(this).data('active', !serviceActive)
