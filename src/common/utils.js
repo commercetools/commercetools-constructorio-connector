@@ -2,7 +2,7 @@ const _ = require('lodash');
 const fs = require('fs-extra')
 
 _.nmap = (coll, iter) => _.filter(_.map(coll, iter), x => x);
-_.ff = (coll, filter) => _.ff(coll, filter)
+_.ff = (coll, filter) => _.first(_.filter(coll, filter));
 
 module.exports = {
     file: {

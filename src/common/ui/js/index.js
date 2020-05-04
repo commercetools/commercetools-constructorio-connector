@@ -2,8 +2,10 @@ let projects = {}
 let endpoints = []
 let user = null
 
+_.nmap = (coll, iter) => _.filter(_.map(coll, iter), x => x);
+_.ff = (coll, filter) => _.first(_.filter(coll, filter));
+
 let localPath = window.location.pathname.replace('/ui/', '')
-console.log(`localPath: ${localPath}`)
 
 let template = {
     client_id: '',
@@ -290,7 +292,7 @@ let parseCredentialPaste = () => {
 
 let saveCredential = async () => {
     let project = {
-        projectKey: getProjectKeyFromScopes(),
+        project: getProjectKeyFromScopes(),
         client_id: $('#field_client_id').val(),
         client_secret: $('#field_client_secret').val(),
         oauth_url: $('#field_oauth_url').val(),
@@ -298,7 +300,7 @@ let saveCredential = async () => {
         scopes: $('#field_scopes').val().split(' ')
     }
 
-    if (!projects[project.projectKey] || (projects[project.projectKey] && confirm(`Project ${project.projectKey} already has credentials in the vault; overwrite?`))) {
+    if (!projects[project.project] || (projects[project.project] && confirm(`Project ${project.project} already has credentials in the vault; overwrite?`))) {
         $('#saveSpinner').show()
         let response = await $.ajax({
             method: 'post',
