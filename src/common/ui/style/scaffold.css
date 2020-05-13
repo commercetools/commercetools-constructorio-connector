@@ -72,6 +72,12 @@ ul .extensions .icon, ul .subscriptions .icon {
 #sharedServicesList .badge-post {
   background-color: #F5A730;
 }
+#sharedServicesList .badge-put {
+  background-color: #0d9df8;
+}
+#sharedServicesList .badge-delete {
+  background-color: #f30000;
+}
 
 input[type=checkbox] {
   height: 0;

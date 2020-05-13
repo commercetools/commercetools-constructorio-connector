@@ -1,12 +1,15 @@
+// local utils
+global.__basedir = require('app-root-path');
+global.utils = require('./common/utils');
+global.config = require('./common/config');
+
 // npm packages
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const CT = require('ctvault');
 const express = require('express');
 
-// local utils
-global.utils = require('./common/utils');
-global.config = require('./common/config');
+const serviceLoader = require('./common/serviceloader');
 
 // express app setup
 const app = express();
@@ -31,10 +34,11 @@ app.listen(port, async () => {
   app.use('/ui', express.static(`${__dirname}/common/ui`));
 
   // load the services
-  app.use(require('./common/serviceloader'))
+  app.use(serviceLoader)
 
   // global error handler
   app.use(commonHandlers.error);
 
   logger.info(`Server started on port: ${port}`);
+  logger.info(`Application directory: ${__basedir}`)
 });

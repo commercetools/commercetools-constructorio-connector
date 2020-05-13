@@ -1,4 +1,9 @@
 const nconf = require('nconf');
+const fs = require('fs-extra');
+
+if (fs.existsSync(`${__basedir}/config/vault.json`)) {
+  process.env['CT_VAULT_CONFIG'] = `${__basedir}/config/vault.json` 
+}
 
 nconf
   .argv()

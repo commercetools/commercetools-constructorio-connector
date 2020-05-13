@@ -15,6 +15,13 @@ let routes = {
 let getServices = () => _.flatten(_.concat([], Object.values(routes)))
 let getService = key => _.ff(getServices(), service => service.key === key)
 
+router.getServices = getServices;
+router.getService = getService;
+router.canHandle = req => {
+    let service = _.ff(getServices(), service => service.path === req.path && service.method === req.method.toLowerCase())
+    return service && service.handle
+}
+
 let loadDir = dir => {
     let service = require(dir)
     let serviceName = _.last(dir.split('/'))
@@ -41,9 +48,12 @@ let loadDir = dir => {
 
                 case 'microservices':
                 case 'admin_microservices':
-                    router[obj.method || 'get'](obj.path, async (req, res) => {
-                        req.getService = getService
-                        res.status(200).json(await obj.handle(req, res))
+                    let paths = Array.isArray(obj.path) ? obj.path : [obj.path]
+                    _.each(paths, path => {
+                        router[obj.method || 'get'](path, async (req, res, next) => {
+                            req.getService = getService
+                            res.status(200).json(await obj.handle(req, res, next))
+                        })
                     })
                     break;
 
