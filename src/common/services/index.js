@@ -32,7 +32,7 @@ let serviceTypes = ['subscriptions', 'extensions']
 let admin_microservices = [
     {
         key: 'admin-project',
-        path: '/project',
+        path: '/api/project',
         handle: async ({ data, ct }) => ({
             extensions: await ct.extensions.get(),
             subscriptions: await ct.subscriptions.get()
@@ -40,33 +40,39 @@ let admin_microservices = [
     },
     {
         key: 'admin-projects',
-        path: '/projects',
+        path: '/api/projects',
         handle: async ({ data, ct }) => await CT.getClients()
     },
     {
         key: 'admin-register-project',
-        path: '/projects',
+        path: '/api/projects',
         method: 'post',
         handle: async ({ data, ct }) => await CT.saveCredential(data.object)
     },
     {
         key: 'admin-kubernetes-liveness-probe',
-        path: '/isready',
+        path: '/api/isready',
         handle: () => 'Ready'
+    },
+    {
+        // TODO I NEED HELP
+        key: 'ensure-data-model',
+        path: '/api/ensureDataModel',
+        handle: async ({ ct }) => await Promise.all(Object.values(_.get(require('./model'), 'types')).map(ct.types.ensure))
     }
 ]
     
 _.each(serviceTypes, type => {
     admin_microservices.push({
         key: `admin-register-${type}`,
-        path: `/${type}`,
+        path: `/api/${type}`,
         method: 'post',
         handle: async ({ data, ct, getService }) => await ct[type].ensure(payloadGenerator[type](getService(data.object.key), data.object))
     })
 
     admin_microservices.push({
         key: `admin-delete-${type}`,
-        path: `/${type}`,
+        path: `/api/${type}`,
         method: 'delete',
         handle: async ({ data, ct }) => {
             let service = await ct[type].get({ key: data.params.key })

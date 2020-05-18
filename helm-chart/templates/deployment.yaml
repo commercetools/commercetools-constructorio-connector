@@ -44,7 +44,7 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /isready
+              path: /api/isready
               port: http
             initialDelaySeconds: 15
             failureThreshold: 3
@@ -52,7 +52,7 @@ spec:
             timeoutSeconds: 6
           readinessProbe:
             httpGet:
-              path: /isready
+              path: /api/isready
               port: http
             initialDelaySeconds: 15
             failureThreshold: 2
