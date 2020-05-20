@@ -9,7 +9,8 @@ let routes = {
     extensions: [],
     microservices: [],
     admin_microservices: [],
-    subscriptions: []
+    subscriptions: [],
+    ui: []
 }
 
 let getServices = () => _.flatten(_.concat([], Object.values(routes)))
@@ -59,6 +60,10 @@ let loadDir = dir => {
 
                 case 'subscriptions':
                     subscriberManager.subscribe(obj)
+                    break;
+
+                case "ui":
+                    router.use(obj.path, express.static(`${__dirname}/../services/${serviceName}/${obj.localPath}`));
                     break;
 
                 default:

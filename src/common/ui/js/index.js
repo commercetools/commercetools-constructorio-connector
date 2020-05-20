@@ -91,7 +91,7 @@ let refreshProjects = async () => {
     let html = ''
     if (user) {
         try {
-            projects = await $.ajax(`${localPath}/projects`)
+            projects = await $.ajax(`${localPath}/api/projects`)
         
             let groupedProjects = _.groupBy(projects, 'region')
             _.each(Object.keys(groupedProjects), group => {
@@ -112,15 +112,12 @@ let refreshProjects = async () => {
 
 let clickRow = async projectKey => {
     let project = await $.ajax({
-        url: `${localPath}/project`,
+        url: `${localPath}/api/project`,
         headers: { 'Authorization': projectKey }
     })
 
-    console.log(JSON.stringify(project))
-
     let byService = {}
     _.each(endpoints, endpoint => {
-        console.log(`endpoint ${JSON.stringify(endpoint)}`)
         let services = _.flatten(_.concat([], Object.values(project)))
 
         console.log(JSON.stringify(services))
@@ -128,7 +125,6 @@ let clickRow = async projectKey => {
         if (_.includes(Object.keys(project), 'subscriptions')) {
             let service = _.ff(services, s => s.key === endpoint.key)
 
-            console.log(`service ${JSON.stringify(service)}`)
             endpoint.active = _.includes(_.map(services, 'key'), endpoint.key)
             endpoint.activeHTML = `
                 <input class="toggle" type="checkbox" ${endpoint.active ? 'checked' : ''} id='toggle-${endpoint.key}'/>
@@ -161,7 +157,6 @@ let clickRow = async projectKey => {
         let endpoints = byService[service]
 
         let serviceAllActive = _.every(endpoints, 'active')
-        console.log(`serviceAllActive ${serviceAllActive}`)
     
         let serviceActiveHTML = `
             <input class="toggle" type="checkbox" ${serviceAllActive ? 'checked' : ''} id='toggle-${service}'/>
@@ -304,7 +299,7 @@ let saveCredential = async () => {
         $('#saveSpinner').show()
         let response = await $.ajax({
             method: 'post',
-            url: `${localPath}/projects`,
+            url: `${localPath}/api/projects`,
             dataType: 'json',
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(project)
@@ -371,7 +366,7 @@ $(document).on('click', '.toggle-switch', async function () {
     let serviceActive = $(this).data('active')
     let projectKey = $(this).data('project-key')
 
-    let url = `${localPath}/${serviceType}${serviceActive ? '?key=' + serviceKey : ''}`
+    let url = `${localPath}/api/${serviceType}${serviceActive ? '?key=' + serviceKey : ''}`
     let method = serviceActive ? 'delete' : 'post'
 
     let request = {

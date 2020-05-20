@@ -28,7 +28,14 @@ app.listen(port, async () => {
   app.use(CT.middleware.headers);
 
   // log each HTTP request
-  app.use(commonHandlers.log);
+  app.use((req, res, next) => {
+    if (req.path.indexOf('socket.io') === -1) {
+      commonHandlers.log(req, res, next)
+    }
+    else {
+      next()
+    }
+  });
 
   // load the UI
   app.use('/ui', express.static(`${__dirname}/common/ui`));

@@ -41,7 +41,7 @@ let admin_microservices = [
     {
         key: 'admin-projects',
         path: '/api/projects',
-        handle: async ({ data, ct }) => await CT.getClients()
+        handle: CT.getClients
     },
     {
         key: 'admin-register-project',
