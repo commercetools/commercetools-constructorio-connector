@@ -67,7 +67,7 @@ _.each(serviceTypes, type => {
         key: `admin-register-${type}`,
         path: `/api/${type}`,
         method: 'post',
-        handle: async ({ data, ct, getService }) => await ct[type].ensure(payloadGenerator[type](getService(data.object.key), data.object))
+        handle: async ({ data, ct, getHook }) => await ct[type].ensure(payloadGenerator[type](getHook(data.object.key), data.object))
     })
 
     admin_microservices.push({

@@ -3,7 +3,13 @@ module.exports = {
         if (res.headersSent) {
             return next(err);
         }
-        res.status(500).json(err);
+
+        if (err.message) {
+            res.status(500).send(err.message)
+        }
+        else {
+            res.status(500).json(err);
+        }
     },
 
     log: (req, res, next) => {

@@ -73,18 +73,118 @@ let loadDir = dir => {
     })
 }
 
-let serviceDir = `${__dirname}/../services`
-if (fs.existsSync(serviceDir)) {
-  _.each(utils.file.getSubdirectories(serviceDir), loadDir)
-}
-else {
-  logger.warn(`Couldn't find a services directory`)
+let compareModel = opts => ct => async model => {
+    let dataModel = await ct[opts.typeKey].ensure(model)
+    let newDataModel = model
+
+    let dmKeys = _.map(dataModel[pluralize(opts.attributeKey)], 'name')
+    let ndmKeys = _.map(newDataModel[pluralize(opts.attributeKey)], 'name')
+
+    let addActions = _.map(_.difference(ndmKeys, dmKeys), key => {
+        let action = {
+            action: `add${opts.actionKey}`,
+        }
+        action[opts.attributeKey] = _.find(
+            newDataModel[pluralize(opts.attributeKey)],
+            fd => fd.name === key
+        )
+        return action
+    })
+
+    let removeActions = _.map(_.difference(dmKeys, ndmKeys), key => {
+        let action = {
+            action: `remove${opts.actionKey}`,
+        }
+        action[opts.fieldKey] = key
+        return action
+    })
+
+    let actions = _.concat(addActions, removeActions)
+    if (actions.length > 0) {
+        await ct[opts.typeKey].update(dataModel, actions)
+
+        if (addActions.length > 0) {
+            logger.info(
+                `Data model [ ${
+                    model.key
+                } ] updated: added fields [ ${_.difference(
+                    ndmKeys,
+                    dmKeys
+                )} ] for project [ ${ct.projectKey} ]`
+            )
+        }
+        if (removeActions.length > 0) {
+            logger.info(
+                `Data model [ ${
+                    model.key
+                } ] updated: removed fields [ ${_.difference(
+                    dmKeys,
+                    ndmKeys
+                )} ] for project [ ${ct.projectKey} ]`
+            )
+        }
+    } else {
+        logger.info(
+            `Data model [ ${model.key} ] up to date for project [ ${ct.projectKey} ]`
+        )
+    }
 }
 
-// load the common services directory
-loadDir('./services')
+let compareDataModel = compareModel({
+    typeKey: 'types',
+    attributeKey: 'fieldDefinition',
+    actionKey: 'FieldDefinition',
+    fieldKey: 'fieldName',
+})
 
-console.log(`${__dirname}/../../docs`)
+let compareProductDataModel = compareModel({
+    typeKey: 'productTypes',
+    attributeKey: 'attribute',
+    actionKey: 'AttributeDefinition',
+    fieldKey: 'name',
+})
+
+let compareDataModels = async (ct, service) =>
+    await Promise.all(
+        Object.values(service.model.types).map(await compareDataModel(ct))
+    )
+
+let compareProductDataModels = async (ct, service) =>
+    await Promise.all(
+        Object.values(service.model.productTypes).map(
+            await compareProductDataModel(ct)
+        )
+    )
+
+module.exports = async () => {
+    let serviceDir = `${__dirname}/../services`
+    if (fs.existsSync(serviceDir)) {
+        await Promise.all(utils.file.getSubdirectories(serviceDir).map(loadDir))
+    }
+
+    // load the common services directory
+    await loadDir('./services')
+
+    let cts = await CT.getClients()
+    await Promise.all(
+        cts.map(async ctinfo => {
+            let ct = await CT.getClient(ctinfo.projectKey)
+            if (!ct.expired) {
+                let extensions = await ct.extensions.all()
+                await Promise.all(
+                    extensions.map(async ext => {
+                        let hook = router.getHook(ext.key)
+                        
+                        if (hook && hook.service) {
+                            let service = router.getService(hook.service)
+                            await compareDataModels(ct, service)
+                            await compareProductDataModels(ct, service)
+                        }
+                    })
+                )
+            }
+        })
+    )
 
 // load the /api route
 router.get('/api', (req, res) => res.json(getServices()))
