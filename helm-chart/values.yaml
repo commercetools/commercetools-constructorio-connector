@@ -1,15 +1,15 @@
 # Other environment variables may be specified here for consumption by deployment.yaml;
 # Values.env and Values.secret are both exposed within the container as environment variables
-name: %%service_name%%
+name: cio
 
 env:
-  EXPRESS_PORT: %%port%%
+  EXPRESS_PORT: 3001
 
 replicaCount: 1
 
 image:
-  repository: %%docker_image_url%%
-  tag: %%docker_image_tag%%
+  repository: gcr.io/ct-sales-207211/cio
+  tag: latest
   pullPolicy: Always
 
 service:
@@ -23,10 +23,10 @@ ingress:
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
-    - host: %%host%%
+    - host: cio.ctdemo.net
       paths:
-        - /%%service_name%%
+        - /cio
   tls:
-    - secretName: %%service_name%%
+    - secretName: cio
       hosts:
-      - %%host%%
+      - cio.ctdemo.net

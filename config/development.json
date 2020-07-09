@@ -1,7 +1,7 @@
 {
     "pubSub": {
         "type": "GoogleCloudPubSub",
-        "projectId": "%%gcp_id%%",
-        "topic": "%%gcp_pubsub_topic%%"
+        "projectId": "ct-sales-207211",
+        "topic": "cio-dev"
     }
 }

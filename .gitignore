@@ -6,3 +6,5 @@ coverage
 *.tfstate*
 *.tfvars*
 config/vault/*
+config/local.json
+

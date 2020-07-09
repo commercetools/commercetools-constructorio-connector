@@ -1,7 +1,10 @@
 const express = require('express')
-const router = express.Router();
+const router = express.Router()
 const fs = require('fs-extra')
 const _ = require('lodash')
+const CT = require('ctvault')
+const pluralize = require('pluralize')
+const utils = require('./utils')
 
 const subscriberManager = require('./subscriptionManager')
 
@@ -10,64 +13,93 @@ let routes = {
     microservices: [],
     admin_microservices: [],
     subscriptions: [],
-    ui: []
+    ui: [],
 }
 
-let getServices = () => _.flatten(_.concat([], Object.values(routes)))
-let getService = key => _.ff(getServices(), service => service.key === key)
+let services = []
 
-router.getServices = getServices;
-router.getService = getService;
-router.canHandle = req => {
-    let service = _.ff(getServices(), service => service.path === req.path && service.method === req.method.toLowerCase())
-    return service && service.handle
-}
+router.getServices = () => services
+router.getService = key =>
+    _.ff(router.getServices(), service => service.key === key)
+router.getHooks = () => _.flatten(_.concat([], Object.values(routes)))
+router.getHook = key => _.ff(router.getHooks(), hook => hook.key === key)
 
-let loadDir = dir => {
+let loadDir = async dir => {
     let service = require(dir)
-    let serviceName = _.last(dir.split('/'))
+    service.key = _.last(dir.split('/'))
+    services.push(service)
+
+    if (service.asyncInit) {
+        await service.asyncInit()
+    }
 
     _.each(Object.keys(service), key => {
+        if (key === 'asyncInit' || key === 'key' || key === 'model') {
+            return
+        }
         let objects = service[key]
         _.each(objects, obj => {
             obj.type = key
-            obj.service = serviceName
+            obj.service = service.key
             routes[key].push(obj)
 
             switch (key) {
                 case 'extensions':
                     router.post(obj.path, async (req, res, next) => {
-                        let h = _.get(obj, `triggers.${req.body.resource.typeId}.${req.body.action}`)
+                        let h = _.get(
+                            obj,
+                            `triggers.${req.body.resource.typeId}.${req.body.action}`
+                        )
                         if (h) {
-                            return res.status(200).json({ actions: await h(req, res, next) })
-                        }
-                        else {
-                            next({ error: `Handler not found for ${req.body.resource.typeId} / ${req.body.action} under path ${req.path}` })
+                            let actions = await h(req, res, next)
+                            if (!res.headersSent) {
+                                return res.status(200).json({ actions })
+                            }
+                        } else {
+                            next({
+                                error: `Handler not found for ${req.body.resource.typeId} / ${req.body.action} under path ${req.path}`,
+                            })
                         }
                     })
-                    break;
+                    break
 
                 case 'microservices':
                 case 'admin_microservices':
                     let paths = Array.isArray(obj.path) ? obj.path : [obj.path]
                     _.each(paths, path => {
-                        router[obj.method || 'get'](path, async (req, res, next) => {
-                            req.getService = getService
-                            res.status(200).json(await obj.handle(req, res, next))
-                        })
+                        router[obj.method || 'get'](
+                            path,
+                            async (req, res, next) => {
+                                req.getHook = router.getHook
+
+                                try {
+                                    let response = await obj.handle(req, res, next)
+                                    if (!res.headersSent) {
+                                        res.status(200).json(response)
+                                    }
+                                } catch (error) {
+                                    next(error)
+                                }
+                            }
+                        )
                     })
-                    break;
+                    break
 
                 case 'subscriptions':
                     subscriberManager.subscribe(obj)
-                    break;
+                    break
 
-                case "ui":
-                    router.use(obj.path, express.static(`${__dirname}/../services/${serviceName}/${obj.localPath}`));
-                    break;
+                case 'ui':
+                    router.use(
+                        obj.path,
+                        express.static(
+                            `${__dirname}/../services/${service.key}/${obj.localPath}`
+                        )
+                    )
+                    break
 
                 default:
-                    break;
+                    break
             }
         })
     })
@@ -146,12 +178,12 @@ let compareProductDataModel = compareModel({
 
 let compareDataModels = async (ct, service) =>
     await Promise.all(
-        Object.values(service.model.types).map(await compareDataModel(ct))
+        Object.values(service.model.types || {}).map(await compareDataModel(ct))
     )
 
 let compareProductDataModels = async (ct, service) =>
     await Promise.all(
-        Object.values(service.model.productTypes).map(
+        Object.values(service.model.productTypes || {}).map(
             await compareProductDataModel(ct)
         )
     )
@@ -186,8 +218,8 @@ module.exports = async () => {
         })
     )
 
-// load the /api route
-router.get('/api', (req, res) => res.json(getServices()))
-router.use('/docs', express.static(`${__dirname}/../../docs`))
-
-module.exports = router
+    // load the /api route
+    router.get('/api', (req, res) => res.json(router.getHooks()))
+    router.use('/docs', express.static(`${__dirname}/../../docs`))
+    return router
+}
