@@ -28,10 +28,7 @@ let loadDir = async dir => {
     let service = require(dir)
     service.key = _.last(dir.split('/'))
     services.push(service)
-
-    if (service.asyncInit) {
-        await service.asyncInit()
-    }
+    service.asyncInit && await service.asyncInit()
 
     _.each(Object.keys(service), key => {
         if (key === 'asyncInit' || key === 'key' || key === 'model') {
@@ -198,7 +195,7 @@ module.exports = async () => {
     await loadDir('./services')
 
     let cts = await CT.getClients()
-    await Promise.all(
+    await Promise.allSettled(
         cts.map(async ctinfo => {
             let ct = await CT.getClient(ctinfo.projectKey)
             if (!ct.expired) {

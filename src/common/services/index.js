@@ -68,7 +68,6 @@ _.each(serviceTypes, type => {
         path: `/api/${type}`,
         method: 'post',
         handle: async ({ data, ct, getHook }) => {
-            console.log(`payload ${JSON.stringify(payloadGenerator[type](getHook(data.object.key), data.object))}`)
             return await ct[type].ensure(payloadGenerator[type](getHook(data.object.key), data.object))
         }
     })

@@ -1,7 +1,6 @@
 const _ = require('lodash')
-const ConstructorIO = require('constructorio')
+const ConstructorIO = require('constructorio');
 
-let constructorio = new ConstructorIO(global.config.get('constructorio'))
 let constructorIOCallback = methodName => (error, response) => {
     logger.debug(`constructor.io: calling method [ ${methodName} ]`)
     return new Promise((resolve, reject) => {
@@ -15,7 +14,10 @@ let constructorIOCallback = methodName => (error, response) => {
     })
 }
 
-module.exports = _.zipObject(Object.keys(ConstructorIO.prototype), _.map(Object.keys(ConstructorIO.prototype), methodName => {
-    let method = constructorio[methodName].bind(constructorio)
-    return methodName === 'verify' ? method(constructorIOCallback(methodName)) : args => method(args, constructorIOCallback(methodName))
-}))
+module.exports = config => {
+    let constructorio = new ConstructorIO(config)
+    return _.zipObject(Object.keys(ConstructorIO.prototype), _.map(Object.keys(ConstructorIO.prototype), methodName => {
+        let method = constructorio[methodName].bind(constructorio)
+        return methodName === 'verify' ? method(constructorIOCallback(methodName)) : args => method(args, constructorIOCallback(methodName))
+    }))
+}

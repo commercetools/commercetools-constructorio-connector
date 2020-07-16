@@ -34,6 +34,7 @@ if (!_.isEmpty(topic)) {
             let subscriptions = await ct.subscriptions.get()
             _.each(_.nmap(subscriptions, s => handlers[s.key]), handler => {
                 let method = null
+
                 if (resourceType === 'Message') {
                     if (handler.messages && handler.messages[message.notificationType]) {
                         method = handler.messages[message.notificationType]
