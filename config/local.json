@@ -1,0 +1,12 @@
+{
+    "pubSub": {
+        "type": "GoogleCloudPubSub",
+        "projectId": "ct-sales-207211",
+        "topic": "circlek"
+    },
+    "constructor.io": {
+        "apiToken": "tok_79rFqrkSyRSzj4k3",
+        "apiKey": "key_Uw5Fs43iLTfSA87F",
+        "mapper": "services/circlek/mapper.js"
+    }
+}

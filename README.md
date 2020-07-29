@@ -1,4 +1,8 @@
-AT&T Pricing microservice
+constructor.io connector
 ====
 
-Takes an AT&T cart and context, creates a corresponding cart in commercetools and returns the cart with pricing.
+This connector contains code to connect commercetools to constructor.io.
+
+It contains two subscriptions, <code>productCreated</code> and <code>productUpdated</code>, which will update the index on c.io for the updated product but only if it has no staged changes (published).
+
+There are also two HTTP endpoints, <code>/api/c.io/exportProduct</code>, which will export a single CT product to c.io by its ID, and <code>/api/c.io/export</code>, which will export the entire catalog.
