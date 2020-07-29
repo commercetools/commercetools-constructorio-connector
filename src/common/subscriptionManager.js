@@ -34,6 +34,7 @@ if (!_.isEmpty(topic)) {
             let subscriptions = await ct.subscriptions.get()
             _.each(_.nmap(subscriptions, s => handlers[s.key]), handler => {
                 let method = null
+
                 if (resourceType === 'Message') {
                     if (handler.messages && handler.messages[message.notificationType]) {
                         method = handler.messages[message.notificationType]
@@ -56,12 +57,7 @@ if (!_.isEmpty(topic)) {
     subscription.on(`error`, (error) => { logger.error(`Error connecting to Google PubSub: ${JSON.stringify(error)}`) })
     logger.info(`Connected to Google PubSub topic [ ${topic} ]`)
 }
-else {
-    logger.error(`PubSub topic not found`)
-}
 
 module.exports = {
-    subscribe: handler => {
-        handlers[handler.key] = handler
-    }
+    subscribe: handler => handlers[handler.key] = handler
 }

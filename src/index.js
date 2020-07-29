@@ -41,7 +41,7 @@ app.listen(port, async () => {
   app.use('/ui', express.static(`${__dirname}/common/ui`));
 
   // load the services
-  app.use(serviceLoader)
+  app.use(await serviceLoader())
 
   // global error handler
   app.use(commonHandlers.error);
