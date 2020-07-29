@@ -1,7 +1,7 @@
 const _ = require('lodash')
 
 module.exports = {
-    mapProduct: (product, mapped = {}) => {
+    mapProduct: (product, mapped = {}, languageCode) => {
         let parentCategory = product.categories[0].obj
     
         // there are no keywords in the current index

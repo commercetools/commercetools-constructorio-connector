@@ -1,0 +1,12 @@
+{
+    "pubSub": {
+        "type": "GoogleCloudPubSub",
+        "projectId": "<gcp_id>",
+        "topic": "<gcp_pubsub_topic>"
+    },
+    "constructor.io": {
+        "apiToken": "<api_token>",
+        "apiKey": "<api_key>",
+        "mapper": "<path_to_mapper>"
+    }
+}

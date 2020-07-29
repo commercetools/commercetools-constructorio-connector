@@ -10,8 +10,8 @@ const getCIOClient = async ct => cioclient(await ct.customObjects.ensure({
     container: "config",
     key: "constructor.io",
     value: {
-        apiToken: global.config.get('constructor.io:apiToken'),
-        apiKey: global.config.get('constructor.io:apiKey'),
+        apiToken: config.get('constructor.io:apiToken'),
+        apiKey: config.get('constructor.io:apiKey'),
         languageCode: "en"
     }
 }))
