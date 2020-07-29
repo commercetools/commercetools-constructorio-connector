@@ -219,6 +219,5 @@ module.exports = async () => {
 
     // load the /api route
     router.get('/api', (req, res) => res.json(router.getHooks()))
-    router.use('/docs', express.static(`${__dirname}/../../docs`))
     return router
 }
