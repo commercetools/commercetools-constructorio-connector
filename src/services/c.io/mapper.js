@@ -1,95 +1,60 @@
 const _ = require('lodash')
 
-let defaultLanguageCode = 'en'
+const defaultLanguageCode = 'en'
 
 let getURL = product => `https://demo.commercetools.com/${defaultLanguageCode}/${product.slug[defaultLanguageCode]}.html`
 
-let getAttributeValue = (model, attribute) => {
-    switch (model.type.name) {
-        case 'text':
-            return attribute.value;
-    
-        case 'enum':
-            return attribute.value.label;
-
-        case 'ltext':
-            return attribute.value[defaultLanguageCode];
-
-        case 'lenum':
-            return attribute.value.label[defaultLanguageCode];
-
-        default:
-            break;
-    }
+let getAttributeValue = attribute => {
+    return _.get(attribute, `value.label[${defaultLanguageCode}]`) ||
+        _.get(attribute, `value[${defaultLanguageCode}]`) ||
+        _.get(attribute, `value.label`) ||
+        _.get(attribute, `value`)
 }
 
-const mapProduct = product => {
-    console.log(JSON.stringify(product))
+let mapAttributes = (model, attributes) => _.zipObject(
+    _.map(model, 'name'),
+    _.map(model, att => getAttributeValue(_.find(attributes, a => a.name === att.name)))
+)
 
-    let sameForAllAttributes = _.filter(product.productType.obj.attributes, att => att.attributeConstraint === 'SameForAll' && att.isSearchable)
-    let variantAttributes = _.filter(product.productType.obj.attributes, att => att.attributeConstraint !== 'SameForAll' && att.isSearchable)
+let baseMapProduct = product => {
+    let searchableAttributes = _.filter(product.productType.obj.attributes, att => att.isSearchable)
+    let [productAttributes, variantAttributes] = _.partition(searchableAttributes, att => att.attributeConstraint === 'SameForAll')
 
-    let productFacets = {}
-    _.each(sameForAllAttributes, att => {
-        let matchingAttribute = _.find(product.masterVariant.attributes, a => a.name === att.name)
-        if (matchingAttribute) {
-            let value = getAttributeValue(att, matchingAttribute)
-            if (value) {
-                productFacets[att.name] = value
-            }
-        }
-    })
-
-    let x = {
+    return {
         item_name: product.name[defaultLanguageCode],
         section: 'Products',
         url: getURL(product),
         image_url: _.get(product, 'masterVariant.images[0].url'),
         description: _.get(product, `description.${defaultLanguageCode}`) || _.get(product, `metaDescription.${defaultLanguageCode}`),
         id: product.slug[defaultLanguageCode],
-        facets: productFacets,
-        keywords: [productFacets['designer']],
+        facets: mapAttributes(productAttributes, product.masterVariant.attributes),
+        keywords: [],
         variations: _.map(_.concat([product.masterVariant], product.variants), variant => {
-            let variantFacets = {}
-            _.each(variantAttributes, att => {
-                let matchingAttribute = _.find(variant.attributes, a => a.name === att.name)
-                if (matchingAttribute) {
-                    let value = getAttributeValue(att, matchingAttribute)
-                    if (value) {
-                        variantFacets[att.name] = value
-                    }
-                }
-            })
-    
             return {
                 id: variant.sku,
                 url: getURL(product),
-                facets: variantFacets,
+                facets: mapAttributes(variantAttributes, variant.attributes),
                 keywords: [variant.sku],
             }
         }),
     }
-    console.log(JSON.stringify(x))
-    return x
 }
 
-const mapProducts = products => ({
-    section: 'Products',
-    items: _.map(products, mapper.mapProduct)
-})
-
-const defaultCIOConfig = {
-    container: "config",
-    key: "constructor.io",
-    value: {
-        apiToken: "YOUR_API_TOKEN",
-        apiKey: "YOUR_API_KEY",
-        languageCode: "en"
+let mapProduct = product => {
+    let mapped = baseMapProduct(product)
+    let mapperPath = global.config.get('constructor.io:mapper')
+    if (mapperPath) {
+        mapped = require(`${global.__basedir}/src/${mapperPath}`).mapProduct(product, mapped)
     }
+    return mapped
 }
+
+let mapProducts = products => ({
+    section: 'Products',
+    items: _.map(products, mapProduct)
+})
 
 module.exports = {
     mapProduct,
-    mapProducts,
-    defaultCIOConfig
+    mapProducts
 }

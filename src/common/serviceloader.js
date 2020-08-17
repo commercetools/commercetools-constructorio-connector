@@ -25,6 +25,8 @@ router.getHooks = () => _.flatten(_.concat([], Object.values(routes)))
 router.getHook = key => _.ff(router.getHooks(), hook => hook.key === key)
 
 let loadDir = async dir => {
+    if (!fs.existsSync(`${dir}/index.js`)) { return }
+
     let service = require(dir)
     service.key = _.last(dir.split('/'))
     services.push(service)
@@ -186,13 +188,13 @@ let compareProductDataModels = async (ct, service) =>
     )
 
 module.exports = async () => {
-    let serviceDir = `${__dirname}/../services`
+    let serviceDir = `${global.__basedir}/src/services`
     if (fs.existsSync(serviceDir)) {
         await Promise.all(utils.file.getSubdirectories(serviceDir).map(loadDir))
     }
 
     // load the common services directory
-    await loadDir('./services')
+    await loadDir(`${global.__basedir}/src/common/services`)
 
     let cts = await CT.getClients()
     await Promise.allSettled(
