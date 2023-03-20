@@ -62,7 +62,7 @@
     "lodash": "^4.17.15",
     "nconf": "^0.10.0",
     "pluralize": "^8.0.0",
-    "redoc": "^1.20.0",
+    "redoc": "^2.0.0",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
     "slugify": "^1.4.0"
